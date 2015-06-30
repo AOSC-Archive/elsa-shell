@@ -1,7 +1,7 @@
 elsa-shell
 -----------
 
-Elsa Shell is a Window Manager, Panel and Desktop.
+Elsa Shell is a Window Manager, Panel and Autostart.
 
 
 ## Dependence
@@ -51,7 +51,9 @@ exec elsa-shell
 * [GtkDialog can not be moved when gtk_dialog_run from GtkListBox row-activated signal callback] (https://bugzilla.gnome.org/show_bug.cgi?id=750384)
 
 
-## Bug
+## Recommend
 
-* how to put wm and gtk g_main_loop together just like gnome-shell put wm and gjs?
-* systray icon bigger than 30px will expand panel.
+* [Arc theme] (https://github.com/horst3180/Arc-theme)
+* [Numix-Circle icon] (https://github.com/numixproject/numix-icon-theme-circle)
+* [Nautilus] (https://git.gnome.org/browse/nautilus)
+
