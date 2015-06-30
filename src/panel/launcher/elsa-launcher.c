@@ -119,8 +119,12 @@ done:
         break;
     }
 
-    if (parent)
+    if (parent) {
+        if (dir_submenu)
+            gtk_menu_item_set_submenu(GTK_MENU_ITEM(parent), dir_submenu);
+
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(parent), entry_submenu);
+    }
 
     if (iter) {
         gmenu_tree_iter_unref(iter);
