@@ -51,6 +51,7 @@ exec elsa-shell
 * [segfault g_settings_new with typo or not installed schema] (https://bugzilla.gnome.org/show_bug.cgi?id=751627)
 * [gtk_menu_popup gtk_combo_box_menu_position wrong menu_ypos] (https://bugzilla.gnome.org/show_bug.cgi?id=750372)
 * [GtkDialog can not be moved when gtk_dialog_run from GtkListBox row-activated signal callback] (https://bugzilla.gnome.org/show_bug.cgi?id=750384)
+* [budgie wm background is not able to parse xml] (https://github.com/solus-project/budgie-desktop/issues/227)
 
 
 ## Recommend
