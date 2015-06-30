@@ -15,6 +15,7 @@ missing
 .deps
 stamp-h1
 po
+src/elsa-shell
 
 # Object files
 *.o
