@@ -75,7 +75,6 @@ AC_CONFIG_FILES([
  src/Makefile
  src/wm/Makefile
  src/session/Makefile
- src/desktop/Makefile
  src/panel/Makefile
  src/panel/launcher/Makefile
  src/panel/taskbar/Makefile

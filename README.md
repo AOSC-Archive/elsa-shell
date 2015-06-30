@@ -56,4 +56,4 @@ exec elsa-shell
 * [Arc theme] (https://github.com/horst3180/Arc-theme)
 * [Numix-Circle icon] (https://github.com/numixproject/numix-icon-theme-circle)
 * [Nautilus] (https://git.gnome.org/browse/nautilus)
-
+* [Network Manager Applet] (https://git.gnome.org/browse/network-manager-applet)

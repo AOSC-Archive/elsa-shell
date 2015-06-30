@@ -1,3 +1,21 @@
+config.*
+configure
+Makefile.in
+Makefile
+ar-lib
+aclocal.m4
+autom4te.cache
+compile
+depcomp
+install-sh
+libtool
+ltmain.sh
+m4
+missing
+.deps
+stamp-h1
+po
+
 # Object files
 *.o
 *.ko
