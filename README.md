@@ -38,6 +38,7 @@ exec elsa-shell
 * [mutter] (https://git.gnome.org/browse/mutter)
 * [gnome-shell] (https://git.gnome.org/browse/gnome-shell)
 * [budige-desktop] (https://github.com/solus-project/budgie-desktop)
+* moses-wm
 * [xtk] (https://github.com/xiangzhai/xtk)
 
 

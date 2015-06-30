@@ -2,6 +2,9 @@
 
 #include "config.h"
 #include "elsa-datetime.h"
+#include "../elsa-popup.h"
+
+static gboolean is_shown = FALSE;
 
 static gboolean update_time(gpointer user_data)
 {
@@ -18,30 +21,38 @@ static gboolean update_time(gpointer user_data)
     return G_SOURCE_CONTINUE;
 }
 
-static gboolean elsa_datetime_button_press_cb(GtkWidget *event_box, 
-                                              GdkEvent *event, 
-                                              gpointer user_data) 
+static gboolean elsa_datetime_button_press(GtkWidget *eventbox, 
+                                           GdkEventButton *event, 
+                                           gpointer user_data) 
 {
-#if DEBUG
-    g_message("%s, line %d, %x\n", __func__, __LINE__, event);
-#endif
+    GtkWidget *popup = (GtkWidget *)user_data;
+
+    is_shown = !is_shown;
+
+    if (is_shown) {
+        gtk_window_move(GTK_WINDOW(popup), event->x_root, event->y_root);
+        gtk_widget_show_all(popup);
+    } else {
+        gtk_widget_hide(popup);
+    }
 
     return FALSE;
 }
 
 GtkWidget *elsa_datetime_new() 
 {
-    GtkWidget *event_box = gtk_event_box_new();
+    GtkWidget *eventbox = gtk_event_box_new();
     GtkWidget *time_label = gtk_label_new("");
+    GtkWidget *popup = elsa_popup_new(gtk_calendar_new());
 
-    gtk_container_add(GTK_CONTAINER(event_box), time_label);
+    gtk_container_add(GTK_CONTAINER(eventbox), time_label);
 
     update_time(time_label);
     g_timeout_add_seconds(1, update_time, time_label);
 
-    g_object_connect(G_OBJECT(event_box), 
-        "signal::button-press-event", G_CALLBACK(elsa_datetime_button_press_cb), NULL,
+    g_object_connect(G_OBJECT(eventbox), 
+        "signal::button-press-event", G_CALLBACK(elsa_datetime_button_press), popup,
         NULL);
 
-    return event_box;
+    return eventbox;
 }

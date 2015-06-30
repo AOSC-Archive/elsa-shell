@@ -7,6 +7,7 @@ SUBDIRS = launcher	\
 		  $(NULL)
 
 libelsa_panel_la_SOURCES = elsa-panel.c	\
+						   elsa-popup.c	\
 						   $(NULL)
 libelsa_panel_la_CFLAGS = $(GTK3_CFLAGS)	\
 						  -I$(srcdir)/launcher	\
