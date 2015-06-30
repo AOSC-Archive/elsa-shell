@@ -15,6 +15,8 @@
 #include <meta/meta-background.h>
 #include <meta/meta-background-group.h>
 #include <meta/meta-version.h>
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
 
 #include "background.h"
 
@@ -182,6 +184,53 @@ static void on_update(MetaBackground *background, BudgieBackground *self)
         g_object_set(self->priv->bg, "opacity", 255, NULL);
         clutter_actor_restore_easing_state(self->priv->bg);
 }
+
+static gchar *_parse_static(xmlDocPtr doc, xmlNodePtr cur)
+{
+        cur = cur->xmlChildrenNode;
+        while (cur) {
+                if (xmlStrcmp(cur->name, "file") == 0)
+                        return xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+
+                cur = cur->next;
+        }
+
+        return NULL;
+}
+
+static gchar *_parse_xml(const gchar *filename)
+{
+        xmlDocPtr doc = NULL;
+        xmlNodePtr cur = NULL;
+        gchar *static_filename = NULL;
+
+        doc = xmlParseFile(filename);
+        if (!doc)
+                goto cleanup;
+
+        cur = xmlDocGetRootElement(doc);
+        if (!cur)
+                goto cleanup;
+
+        cur = cur->xmlChildrenNode;
+        while (cur) {
+                if (xmlStrcmp(cur->name, "static") == 0) {
+                        static_filename = _parse_static(doc, cur);
+                        break;
+                }
+
+                cur = cur->next;
+        }
+
+cleanup:
+        if (doc) {
+                xmlFreeDoc(doc);
+                doc = NULL;
+        }
+
+        return static_filename;
+}
+
 /**
  * Actually update our appearance..
  * ATM this is totally hacky and only uses picture-uri :P
@@ -252,6 +301,9 @@ static void _update(BudgieBackground *self)
                 bg_file = g_file_new_for_uri(bg_filename);
 
 #if META_MINOR_VERSION > 14
+                if (g_str_has_suffix(bg_filename, ".xml"))
+                        bg_file = g_file_new_for_path(_parse_xml(bg_filename));
+
                 meta_background_set_file(background, bg_file, style);
 #else
                 char *filename = g_file_get_path(bg_file);

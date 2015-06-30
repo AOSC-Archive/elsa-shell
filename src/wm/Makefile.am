@@ -8,6 +8,8 @@ libelsa_wm_la_SOURCES =	elsa-wm-plugin.c	\
 						shell-app-system.c	\
 						$(NULL)
 libelsa_wm_la_CFLAGS = $(MUTTER_CFLAGS)	\
-					   $(SN_CFLAGS)
+					   $(SN_CFLAGS)	\
+					   $(XML2_CFLAGS)
 libelsa_wm_la_LIBADD = $(MUTTER_LIBS)	\
-					   $(SN_LIBS)
+					   $(SN_LIBS)	\
+					   $(XML2_LIBS)

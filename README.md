@@ -8,11 +8,12 @@ Elsa Shell is a Window Manager, Panel and Autostart.
 
 * libmutter
 * libstartup-notification-1.0
-* x11
-* gtk+-3.0
-* gnome-menus
+* libx11
+* libgtk+-3.0
+* libgnome-menus
 * libwnck-3.0
 * gsettings-desktop-schemas
+* libxml2
 
 
 ## Build
