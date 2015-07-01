@@ -5,6 +5,6 @@
 
 #include <gtk/gtk.h>
 
-GtkWidget *elsa_popup_new();
+GtkWidget *elsa_popup_new(GtkWidget *child);
 
 #endif /* __ELSA_POPUP_H__ */

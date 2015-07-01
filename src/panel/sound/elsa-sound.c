@@ -23,7 +23,6 @@
 static GtkWidget *icon = NULL;
 static GtkWidget *scale = NULL;
 static GtkAdjustment *adjust = NULL;
-static gboolean is_shown = FALSE;
 
 /* 
  * PulseAudio is inherit from Python2.x binding 
@@ -319,15 +318,11 @@ static gboolean elsa_sound_button_press(GtkWidget *eventbox,
                                         gpointer user_data) 
 {
     GtkWidget *popup = (GtkWidget *)user_data;
+    GtkAllocation alloc;
 
-    is_shown = !is_shown;
-
-    if (is_shown) {
-        gtk_window_move(GTK_WINDOW(popup), event->x_root, event->y_root);
-        gtk_widget_show_all(popup);
-    } else {
-        gtk_widget_hide(popup);
-    }
+    gtk_widget_get_allocation(eventbox, &alloc);
+    gtk_window_move(GTK_WINDOW(popup), alloc.x, event->y_root);
+    gtk_widget_show_all(popup);
 
     return FALSE;
 }

@@ -4,8 +4,6 @@
 #include "elsa-datetime.h"
 #include "../elsa-popup.h"
 
-static gboolean is_shown = FALSE;
-
 static gboolean update_time(gpointer user_data)
 {
     GtkWidget *label = (GtkWidget*) user_data;
@@ -27,14 +25,8 @@ static gboolean elsa_datetime_button_press(GtkWidget *eventbox,
 {
     GtkWidget *popup = (GtkWidget *)user_data;
 
-    is_shown = !is_shown;
-
-    if (is_shown) {
-        gtk_window_move(GTK_WINDOW(popup), event->x_root, event->y_root);
-        gtk_widget_show_all(popup);
-    } else {
-        gtk_widget_hide(popup);
-    }
+    gtk_window_move(GTK_WINDOW(popup), event->x_root, event->y_root);
+    gtk_widget_show_all(popup);
 
     return FALSE;
 }
