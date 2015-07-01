@@ -1,4 +1,8 @@
-/* Copyright (C) 2015 Leslie Zhai <xiang.zhai@i-soft.com.cn> */
+/* 
+ * Copyright (C) 2015 AnthonOS Open Source Community
+ * Copyright (C) 2015 Leslie Zhai <xiang.zhai@i-soft.com.cn> 
+ *
+ */
 
 #include "elsa-panel.h"
 
@@ -9,6 +13,7 @@
 #include "elsa-launcher.h"
 #include "elsa-taskbar.h"
 #include "elsa-systray.h"
+#include "elsa-sound.h"
 #include "elsa-datetime.h"
 
 struct _ElsaPanelPrivate {
@@ -29,6 +34,7 @@ struct _ElsaPanelPrivate {
     GtkWidget *launcher;
     GtkWidget *taskbar;
     GtkWidget *systray;
+    GtkWidget *sound;
     GtkWidget *datetime;
 };
 
@@ -185,6 +191,10 @@ static void elsa_panel_init(ElsaPanel *self)
     /* systray */
     priv->systray = elsa_systray_new(self);
     gtk_box_pack_start(GTK_BOX(priv->right_box), priv->systray, FALSE, FALSE, 0);
+
+    /* sound */
+    priv->sound = elsa_sound_new();
+    gtk_box_pack_start(GTK_BOX(priv->right_box), priv->sound, FALSE, FALSE, 0);
 
     /* datetime */
     priv->datetime = elsa_datetime_new();

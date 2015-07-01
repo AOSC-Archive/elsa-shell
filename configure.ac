@@ -84,6 +84,7 @@ AC_CONFIG_FILES([
  src/panel/launcher/Makefile
  src/panel/taskbar/Makefile
  src/panel/systray/Makefile
+ src/panel/sound/Makefile
  src/panel/datetime/Makefile
 ])
 AC_OUTPUT

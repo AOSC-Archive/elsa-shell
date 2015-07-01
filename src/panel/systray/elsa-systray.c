@@ -32,7 +32,7 @@ static void na_tray_icon_removed(NaTrayManager *na_manager,
  * My sincere thanks goes to Florian Müllner 
  * https://bugzilla.gnome.org/show_bug.cgi?id=751485 
  *
- * FIXME: bigger than 30px systray, such as pidgin`s, will expand the panel
+ * FIXME: bigger than 30px systray, such as pidgin, will expand the panel
  */
 static gboolean na_tray_draw_icon (GtkWidget *socket,
                                    gpointer   data)
