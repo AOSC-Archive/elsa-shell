@@ -14,6 +14,7 @@ Elsa Shell is a Window Manager, Panel and Autostart.
 * libwnck-3.0
 * gsettings-desktop-schemas
 * libxml2
+* libpulse
 
 
 ## Build
@@ -41,6 +42,7 @@ exec elsa-shell
 * [budige-desktop] (https://github.com/solus-project/budgie-desktop)
 * moses-wm
 * [xtk] (https://github.com/xiangzhai/xtk)
+* [pulseaudio python2.x binding] (https://github.com/linuxdeepin/pypulseaudio)
 
 
 ## Patch
