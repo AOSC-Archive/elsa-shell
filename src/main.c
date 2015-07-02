@@ -1,4 +1,6 @@
 /*
+ * Copyright (C) 2015 AnthonOS Open Source Community
+ *
  * This file inherit from mutter/src/core/mutter.c
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +21,7 @@
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <meta/main.h>
 #include <meta/util.h>
 #include <gtk/gtk.h>
@@ -47,11 +50,17 @@ GOptionEntry es_options[] = {
     { NULL }
 };
 
+static void *autostart(void *arg) 
+{
+    elsa_session_autostart();
+}
+
 int main(int argc, char *argv[])
 {
     GOptionContext *ctx = NULL;
     GError *error = NULL;
     pid_t child = -1;
+    pthread_t thread;
 
     ctx = meta_get_option_context();
     g_option_context_add_main_entries(ctx, es_options, GETTEXT_PACKAGE);
@@ -62,11 +71,22 @@ int main(int argc, char *argv[])
     g_option_context_free(ctx);
 
     /* 
-     * FIXME: gnome-shell ***perhaps*** put meta and gtk into only ***one*** 
-     * g_main_loop_run
+     * FIXME: gnome-shell puts meta and gjs into only ***one*** g_main_loop
      * 
+     * I tried to 
+     * 
+     * meta_plugin_manager_set_plugin_type(...)
+     * meta_set_wm_name(...)
+     * meta_init()
+     * meta_register_with_session()
+     * elsa_panel_show(...)
+     * meta_run()
+     *
+     * But when changed the screen size, for example, xrandr --output LVDS1 -- mode 800x600
+     * It failed to change the panel`s position.
+     *
      * How to use only one process just like gnome-shell?
-     * sorry that multiple g_main_loop_XXX are not able to work in pthread
+     * sorry that multiple g_main_loop are not able to work in multi-pthread
      */
     child = fork();
     if (child >= 0) {
@@ -81,16 +101,16 @@ int main(int argc, char *argv[])
 
             meta_register_with_session();
 
-            elsa_session_autostart();
+            pthread_create(&thread, NULL, autostart, NULL);
             
             return meta_run();
         } else {
             /* gtk child process */
             gtk_init(&argc, &argv);
-            
+
             elsa_panel = elsa_panel_new();
             elsa_panel_show(elsa_panel);
-            
+
             gtk_main();
             
             return 0;
