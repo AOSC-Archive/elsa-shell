@@ -21,7 +21,6 @@
 
 #include <stdlib.h>
 #include <unistd.h>
-#include <pthread.h>
 #include <meta/main.h>
 #include <meta/util.h>
 #include <gtk/gtk.h>
@@ -49,11 +48,6 @@ GOptionEntry es_options[] = {
     },
     { NULL }
 };
-
-static void *autostart(void *arg) 
-{
-    elsa_session_autostart();
-}
 
 int main(int argc, char *argv[])
 {
@@ -101,8 +95,8 @@ int main(int argc, char *argv[])
 
             meta_register_with_session();
 
-            pthread_create(&thread, NULL, autostart, NULL);
-            
+            elsa_session_autostart();
+
             return meta_run();
         } else {
             /* gtk child process */

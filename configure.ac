@@ -87,6 +87,7 @@ AC_CONFIG_FILES([
  src/session/Makefile
  src/panel/Makefile
  src/panel/launcher/Makefile
+ src/panel/showdesktop/Makefile
  src/panel/taskbar/Makefile
  src/panel/systray/Makefile
  src/panel/sound/Makefile

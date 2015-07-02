@@ -11,6 +11,7 @@
 #include <gdk/gdkx.h>
 
 #include "elsa-launcher.h"
+#include "elsa-showdesktop.h"
 #include "elsa-taskbar.h"
 #include "elsa-systray.h"
 #include "elsa-sound.h"
@@ -32,6 +33,7 @@ struct _ElsaPanelPrivate {
     GtkWidget *right_box;
 
     GtkWidget *launcher;
+    GtkWidget *showdesktop;
     GtkWidget *taskbar;
     GtkWidget *systray;
     GtkWidget *sound;
@@ -173,6 +175,10 @@ static void elsa_panel_init(ElsaPanel *self)
     /* launcher */
     priv->launcher = elsa_launcher_new();
     gtk_box_pack_start(GTK_BOX(priv->left_box), priv->launcher, FALSE, FALSE, 0);
+
+    /* showdesktop */
+    priv->showdesktop = elsa_showdesktop_new(priv->screen);
+    gtk_box_pack_start(GTK_BOX(priv->left_box), priv->showdesktop, FALSE, FALSE, 0);
 
     /* center box */
     priv->center_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
