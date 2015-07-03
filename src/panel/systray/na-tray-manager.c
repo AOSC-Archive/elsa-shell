@@ -18,7 +18,6 @@
  * Used to be: eggtraymanager.c
  */
 
-#include <config.h>
 #include <string.h>
 #include <libintl.h>
 
@@ -93,6 +92,9 @@ na_tray_manager_init (NaTrayManager *manager)
   manager->invisible = NULL;
   manager->socket_table = g_hash_table_new (NULL, NULL);
 
+  manager->padding = 0;
+  manager->icon_size = 0;
+
   manager->fg.red = 0;
   manager->fg.green = 0;
   manager->fg.blue = 0;
@@ -139,7 +141,7 @@ na_tray_manager_class_init (NaTrayManagerClass *klass)
 		  G_OBJECT_CLASS_TYPE (klass),
 		  G_SIGNAL_RUN_LAST,
 		  G_STRUCT_OFFSET (NaTrayManagerClass, tray_icon_added),
-                  NULL, NULL, NULL,
+		  NULL, NULL, NULL,
 		  G_TYPE_NONE, 1,
 		  GTK_TYPE_SOCKET);
 
@@ -148,7 +150,7 @@ na_tray_manager_class_init (NaTrayManagerClass *klass)
 		  G_OBJECT_CLASS_TYPE (klass),
 		  G_SIGNAL_RUN_LAST,
 		  G_STRUCT_OFFSET (NaTrayManagerClass, tray_icon_removed),
-                  NULL, NULL, NULL,
+		  NULL, NULL, NULL,
 		  G_TYPE_NONE, 1,
 		  GTK_TYPE_SOCKET);
   manager_signals[MESSAGE_SENT] =
@@ -156,7 +158,7 @@ na_tray_manager_class_init (NaTrayManagerClass *klass)
 		  G_OBJECT_CLASS_TYPE (klass),
 		  G_SIGNAL_RUN_LAST,
 		  G_STRUCT_OFFSET (NaTrayManagerClass, message_sent),
-                  NULL, NULL, NULL,
+		  NULL, NULL, NULL,
 		  G_TYPE_NONE, 4,
 		  GTK_TYPE_SOCKET,
 		  G_TYPE_STRING,
@@ -167,7 +169,7 @@ na_tray_manager_class_init (NaTrayManagerClass *klass)
 		  G_OBJECT_CLASS_TYPE (klass),
 		  G_SIGNAL_RUN_LAST,
 		  G_STRUCT_OFFSET (NaTrayManagerClass, message_cancelled),
-                  NULL, NULL, NULL,
+		  NULL, NULL, NULL,
 		  G_TYPE_NONE, 2,
 		  GTK_TYPE_SOCKET,
 		  G_TYPE_LONG);
@@ -176,7 +178,7 @@ na_tray_manager_class_init (NaTrayManagerClass *klass)
 		  G_OBJECT_CLASS_TYPE (klass),
 		  G_SIGNAL_RUN_LAST,
 		  G_STRUCT_OFFSET (NaTrayManagerClass, lost_selection),
-                  NULL, NULL, NULL,
+		  NULL, NULL, NULL,
 		  G_TYPE_NONE, 0);
 
 #if defined (GDK_WINDOWING_X11)
@@ -642,6 +644,62 @@ na_tray_manager_set_visual_property (NaTrayManager *manager)
 }
 
 static void
+na_tray_manager_set_padding_property (NaTrayManager *manager)
+{
+#ifdef GDK_WINDOWING_X11
+  GdkWindow  *window;
+  GdkDisplay *display;
+  Atom        atom;
+  gulong      data[1];
+
+  g_return_if_fail (manager->invisible != NULL);
+  window = gtk_widget_get_window (manager->invisible);
+  g_return_if_fail (window != NULL);
+
+  display = gtk_widget_get_display (manager->invisible);
+  atom = gdk_x11_get_xatom_by_name_for_display (display,
+                                                "_NET_SYSTEM_TRAY_PADDING");
+
+  data[0] = manager->padding;
+
+  XChangeProperty (GDK_DISPLAY_XDISPLAY (display),
+                   GDK_WINDOW_XID (window),
+                   atom,
+                   XA_CARDINAL, 32,
+                   PropModeReplace,
+                   (guchar *) &data, 1);
+#endif
+}
+
+static void
+na_tray_manager_set_icon_size_property (NaTrayManager *manager)
+{
+#ifdef GDK_WINDOWING_X11
+  GdkWindow  *window;
+  GdkDisplay *display;
+  Atom        atom;
+  gulong      data[1];
+
+  g_return_if_fail (manager->invisible != NULL);
+  window = gtk_widget_get_window (manager->invisible);
+  g_return_if_fail (window != NULL);
+
+  display = gtk_widget_get_display (manager->invisible);
+  atom = gdk_x11_get_xatom_by_name_for_display (display,
+                                                "_NET_SYSTEM_TRAY_ICON_SIZE");
+
+  data[0] = manager->icon_size;
+
+  XChangeProperty (GDK_DISPLAY_XDISPLAY (display),
+                   GDK_WINDOW_XID (window),
+                   atom,
+                   XA_CARDINAL, 32,
+                   PropModeReplace,
+                   (guchar *) &data, 1);
+#endif
+}
+
+static void
 na_tray_manager_set_colors_property (NaTrayManager *manager)
 {
 #ifdef GDK_WINDOWING_X11
@@ -725,6 +783,8 @@ na_tray_manager_manage_screen_x11 (NaTrayManager *manager,
 
   na_tray_manager_set_orientation_property (manager);
   na_tray_manager_set_visual_property (manager);
+  na_tray_manager_set_padding_property (manager);
+  na_tray_manager_set_icon_size_property (manager);
   na_tray_manager_set_colors_property (manager);
   
   window = gtk_widget_get_window (invisible);
@@ -857,6 +917,34 @@ na_tray_manager_set_orientation (NaTrayManager  *manager,
       na_tray_manager_set_orientation_property (manager);
 
       g_object_notify (G_OBJECT (manager), "orientation");
+    }
+}
+
+void
+na_tray_manager_set_padding (NaTrayManager *manager,
+                             gint           padding)
+{
+  g_return_if_fail (NA_IS_TRAY_MANAGER (manager));
+
+  if (manager->padding != padding)
+    {
+      manager->padding = padding;
+
+      na_tray_manager_set_padding_property (manager);
+    }
+}
+
+void
+na_tray_manager_set_icon_size (NaTrayManager *manager,
+                               gint           icon_size)
+{
+  g_return_if_fail (NA_IS_TRAY_MANAGER (manager));
+
+  if (manager->icon_size != icon_size)
+    {
+      manager->icon_size = icon_size;
+
+      na_tray_manager_set_icon_size_property (manager);
     }
 }
 

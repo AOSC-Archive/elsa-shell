@@ -195,7 +195,7 @@ static void elsa_panel_init(ElsaPanel *self)
     gtk_box_pack_end(GTK_BOX(priv->box), priv->right_box, FALSE, FALSE, 0);
 
     /* systray */
-    priv->systray = elsa_systray_new(self);
+    priv->systray = elsa_systray_new(priv->screen);
     gtk_box_pack_start(GTK_BOX(priv->right_box), priv->systray, FALSE, FALSE, 0);
 
     /* sound */

@@ -1,105 +1,73 @@
-/* Copyright (C) 2015 Leslie Zhai <xiang.zhai@i-soft.com.cn> */
+/* Copyright (C) 2015 AnthonOS Open Source Community */
 
 #include "config.h"
 #include "elsa-systray.h"
+#include "na-tray.h"
 
-#include <gtk/gtk.h>
-
-#include "na-tray-manager.h"
-
-#define TRAY_ICON_SIZE 30
-
-static NaTrayManager *tray_man = NULL;
-static GtkWidget *flowbox = NULL;
-
-static void na_tray_icon_added(NaTrayManager *na_manager, 
-                               GtkWidget *child, 
-                               gpointer data)
+struct _ElsaSystrayPrivate
 {
-    gtk_box_pack_start(GTK_BOX(flowbox), child, FALSE, FALSE, 0);
+    GtkWidget *box;
 
-    gtk_widget_show(child);
-}
+    NaTray *na_tray;
+};
 
-static void na_tray_icon_removed(NaTrayManager *na_manager, 
-                                 GtkWidget *child, 
-                                 gpointer data)
+G_DEFINE_TYPE_WITH_PRIVATE(ElsaSystray, elsa_systray, GTK_TYPE_BIN)
+
+static void elsa_systray_finalize(GObject *object) 
 {
-    gtk_container_remove(GTK_CONTAINER(flowbox), child);
-}
+    ElsaSystray *self = ELSA_SYSTRAY(object);
+    ElsaSystrayPrivate *priv = elsa_systray_get_instance_private(self);
 
-/* 
- * My sincere thanks goes to Florian Müllner 
- * https://bugzilla.gnome.org/show_bug.cgi?id=751485 
- *
- * FIXME: bigger than 30px systray, such as pidgin, will expand the panel
- */
-static gboolean na_tray_draw_icon (GtkWidget *socket,
-                                   gpointer   data)
-{
-    cairo_t *cr = data;
-    GdkWindow *window = NULL;
-    GtkAllocation socket_alloc, parent_alloc;
-
-    if (!NA_IS_TRAY_CHILD(socket))
-        return FALSE;
-
-    if (!na_tray_child_has_alpha(NA_TRAY_CHILD(socket)))
-        return FALSE;
-
-    window = gtk_widget_get_window(socket);
-
-    gtk_widget_get_allocation(socket, &socket_alloc);
-    gtk_widget_get_allocation(flowbox, &parent_alloc);
-
-    cairo_save(cr);
-#if DEBUG
-    g_message("%s, line %d: (%d, %d) (%d, %d) %dx%d\n", 
-              __func__, __LINE__, parent_alloc.x, parent_alloc.y, 
-              socket_alloc.x, socket_alloc.y, 
-              socket_alloc.width, socket_alloc.height);
-#endif
-    gdk_window_resize(window, TRAY_ICON_SIZE, TRAY_ICON_SIZE);
-    gdk_cairo_set_source_window(cr,
-                                gtk_widget_get_window (socket),
-                                socket_alloc.x - parent_alloc.x,
-                                socket_alloc.y - parent_alloc.y);
-    cairo_rectangle(cr,
-                    socket_alloc.x - parent_alloc.x, 
-                    socket_alloc.y - parent_alloc.y,
-                    TRAY_ICON_SIZE, TRAY_ICON_SIZE);
-    cairo_clip(cr);
-    cairo_paint(cr);
-    cairo_restore(cr);
-
-    return FALSE;
-}
-
-static gboolean flowbox_draw(GtkWidget *flowbox, cairo_t *cr) 
-{
-    gtk_container_foreach(GTK_CONTAINER(flowbox), (GtkCallback)na_tray_draw_icon, cr);
-}
-
-GtkWidget* elsa_systray_new(ElsaPanel *elsa_panel)
-{
-    GdkScreen *screen = elsa_panel_get_screen(elsa_panel);
-    
-    flowbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-    g_object_connect(G_OBJECT(flowbox), 
-        "signal::draw", G_CALLBACK(flowbox_draw), NULL, 
-        NULL);
-
-    tray_man = na_tray_manager_new();
-    na_tray_manager_manage_screen(tray_man, screen);
-
-    if (!na_tray_manager_check_running(screen)) {
-        g_warning("tray manager does not run on screen");
+    if (priv->box) {
+        g_object_unref(priv->box);
+        priv->box = NULL;
     }
 
-    g_object_connect(G_OBJECT(tray_man), 
-        "signal::tray_icon_added", G_CALLBACK(na_tray_icon_added), NULL, 
-        "signal::tray_icon_removed", G_CALLBACK(na_tray_icon_removed), NULL, 
-        NULL);
+    if (priv->na_tray) {
+        g_object_unref(priv->na_tray);
+        priv->na_tray = NULL;
+    }
+
+    G_OBJECT_CLASS(elsa_systray_parent_class)->finalize(object);
+}
+
+static void elsa_systray_get_preferred_height(GtkWidget *widget, 
+                                              gint *minimum,
+                                              gint *natural) 
+{
+    *minimum = *natural = TRAY_ICON_SIZE;
+}
+
+static void elsa_systray_class_init(ElsaSystrayClass *klass)
+{
+    GObjectClass *object_class = G_OBJECT_CLASS(klass);
+    GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+
+    object_class->finalize = elsa_systray_finalize;
+
+    widget_class->get_preferred_height = elsa_systray_get_preferred_height;
+}
+
+static void elsa_systray_init(ElsaSystray *self)
+{
+    ElsaSystrayPrivate *priv = elsa_systray_get_instance_private(self);
+
+    priv->box = gtk_event_box_new();
+
+    gtk_container_add(GTK_CONTAINER(self), priv->box);
+}
+
+GtkWidget *elsa_systray_new(GdkScreen *screen)
+{
+    ElsaSystray *self = NULL;
+
+    self = g_object_new(ELSA_TYPE_SYSTRAY, NULL);
+    self->priv = elsa_systray_get_instance_private(self);
+    self->priv->na_tray = na_tray_new_for_screen(screen, GTK_ORIENTATION_HORIZONTAL);
     
-    return flowbox;
+    na_tray_set_icon_size(self->priv->na_tray, TRAY_ICON_SIZE);
+
+    gtk_container_add(GTK_CONTAINER(self->priv->box), GTK_WIDGET(self->priv->na_tray));
+
+    return (GtkWidget *)self;
 }

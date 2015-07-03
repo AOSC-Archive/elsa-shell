@@ -1,6 +1,8 @@
 noinst_LTLIBRARIES = libelsa-systray.la
 
 libelsa_systray_la_SOURCES = elsa-systray.c	\
+							 na-tray.c	\
+							 fixedtip.c	\
 							 na-tray-manager.c	\
 							 na-tray-child.c	\
 							 $(NULL)
