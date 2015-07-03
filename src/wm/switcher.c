@@ -443,6 +443,7 @@ static void _draw_round_box(cairo_t* cr, gint width, gint height, double radius)
     cairo_close_path(cr);
 }
 
+/* FIXME: when there are too many windows, the round box and icons need to be scaled */
 static gboolean on_switcher_background_draw(ClutterCanvas* canvas, cairo_t* cr,
         gint width, gint height, MetaSwitcher* self)
 {
