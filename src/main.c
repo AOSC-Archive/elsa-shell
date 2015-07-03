@@ -95,12 +95,12 @@ int main(int argc, char *argv[])
 
             meta_register_with_session();
 
-            elsa_session_autostart();
-
             return meta_run();
         } else {
             /* gtk child process */
             gtk_init(&argc, &argv);
+
+            elsa_session_autostart();
 
             elsa_panel = elsa_panel_new();
             elsa_panel_show(elsa_panel);
