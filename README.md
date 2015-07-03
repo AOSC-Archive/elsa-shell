@@ -62,7 +62,7 @@ exec elsa-shell
 * [Numix-Circle icon] (https://github.com/numixproject/numix-icon-theme-circle)
 * [Nautilus] (https://git.gnome.org/browse/nautilus)
 * [Network Manager Applet] (https://git.gnome.org/browse/network-manager-applet)
-
+* [Thunderbird MinimizeToTray] (https://addons.mozilla.org/en-us/thunderbird/addon/minimizetotray-revived/)
 
 ## Screenshot
 
