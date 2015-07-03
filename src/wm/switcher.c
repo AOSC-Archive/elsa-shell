@@ -447,7 +447,9 @@ static void _draw_round_box(cairo_t* cr, gint width, gint height, double radius)
 static gboolean on_switcher_background_draw(ClutterCanvas* canvas, cairo_t* cr,
         gint width, gint height, MetaSwitcher* self)
 {
-    g_debug("%s: %d,%d, ", __func__, width, height);
+#if DEBUG
+    g_message("%s, line %d, %dx%d\n", __func__, __LINE__, width, height);
+#endif
 
     MetaSwitcherPrivate* priv = self->priv;
 
@@ -485,11 +487,22 @@ static gboolean on_icon_background_draw(ClutterCanvas* canvas, cairo_t* cr,
 
 static ClutterActor* load_icon_for_window(MetaSwitcher* self, MetaWindow* window)
 {
+    MetaSwitcherPrivate *priv = self->priv;
+    MetaScreen *screen = meta_plugin_get_screen(priv->plugin);
     ShellWindowTracker* tracker = shell_window_tracker_get_default();
     ShellApp* app = shell_window_tracker_get_window_app(tracker, window);
-    if (app) {
-        return shell_app_create_icon_texture(app, APP_ICON_SIZE);
-    }
+    gint screen_width, screen_height, app_icon_size = -1;
+
+    /* TODO: @sonald scaled app icon size at first */
+    meta_screen_get_size(screen, &screen_width, &screen_height);
+    if (priv->apps->len)
+        app_icon_size = screen_width / priv->apps->len;
+
+    if (app_icon_size == -1 || app_icon_size > APP_ICON_SIZE)
+        app_icon_size = APP_ICON_SIZE;
+
+    if (app)
+        return shell_app_create_icon_texture(app, app_icon_size);
 
     return NULL;
 }
