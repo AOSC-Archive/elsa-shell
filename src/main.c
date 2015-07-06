@@ -54,7 +54,6 @@ int main(int argc, char *argv[])
     GOptionContext *ctx = NULL;
     GError *error = NULL;
     pid_t child = -1;
-    pthread_t thread;
 
     ctx = meta_get_option_context();
     g_option_context_add_main_entries(ctx, es_options, GETTEXT_PACKAGE);
