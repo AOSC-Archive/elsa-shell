@@ -81,6 +81,8 @@ fi
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([
  Makefile
+ data/Makefile
+ data/elsa-shell.desktop
  po/Makefile.in
  src/Makefile
  src/wm/Makefile

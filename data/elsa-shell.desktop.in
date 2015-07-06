@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Elsa Shell
+Comment=FD.o standard Elsa Shell desktop session
+Exec=@prefix@/bin/elsa-shell
+TryExec=@prefix@/bin/elsa-shell
+Icon=
+Type=Application
+DesktopNames=Elsa;GNOME
