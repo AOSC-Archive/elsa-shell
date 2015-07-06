@@ -21,6 +21,7 @@
 #include "elsa-wm-plugin.h"
 #include "background.h"
 #include "switcher.h"
+#include "overview.h"
 
 #include <meta/window.h>
 #include <meta/meta-background-group.h>
@@ -79,16 +80,22 @@ G_DEFINE_TYPE(ElsaWmPlugin, elsa_wm_plugin, META_TYPE_PLUGIN)
 struct _ElsaWmPluginPrivate
 {
     /* Valid only when switch_workspace effect is in progress */
-    ClutterTimeline       *tml_switch_workspace1;
-    ClutterTimeline       *tml_switch_workspace2;
-    ClutterActor          *desktop1;
-    ClutterActor          *desktop2;
+    ClutterTimeline         *tml_switch_workspace1;
+    ClutterTimeline         *tml_switch_workspace2;
+    ClutterActor            *desktop1;
+    ClutterActor            *desktop2;
 
-    ClutterActor          *background_group;
+    ClutterActor            *background_group;
 
-    MetaPluginInfo         info;
+    MetaPluginInfo          info;
 
-    MetaSwitcher          *switcher;
+    MetaSwitcher            *switcher;
+    MosesOverview           *overview;
+
+    GSettings               *settings;
+
+    guint                   expose_windows_action;
+    guint                   expose_all_windows_action;
 };
 
 /*
@@ -200,10 +207,12 @@ elsa_wm_plugin_init (ElsaWmPlugin *self)
     self->priv = priv = ELSA_WM_PLUGIN_GET_PRIVATE (self);
 
     priv->info.name        = "Elsa Window Manager";
-    priv->info.version     = "0.1";
+    priv->info.version     = PACKAGE_VERSION;
     priv->info.author      = "Leslie Zhai";
     priv->info.license     = "GPL";
     priv->info.description = "This is a skeleton of a meta plugin implementation.";
+
+    priv->settings = g_settings_new("org.anthonos.elsa-shell.wm");
 }
 
 /*
@@ -315,11 +324,59 @@ static void switch_applications_cb(MetaDisplay *display,
     }
 }
 
+guint elsa_wm_get_action(ElsaWmPlugin *self, const char *name)
+{
+    g_return_val_if_fail(ELSA_IS_WM_PLUGIN(self), 0);
+
+    if (g_strcmp0(name, "expose-windows") == 0)
+        return self->priv->expose_windows_action;
+    else if (g_strcmp0(name, "expose-all-windows") == 0)
+        return self->priv->expose_all_windows_action;
+
+    return 0;
+}
+
+static void _on_overview_destroy(MosesOverview *overview, ElsaWmPlugin *plugin) 
+{
+    if (plugin->priv->overview) {
+        plugin->priv->overview = NULL;
+    }
+}
+
+static void do_expose_windows(ElsaWmPlugin *self, gboolean is_expose_all)      
+{                                                                               
+    if (self->priv->overview) 
+        return;
+
+    self->priv->overview = moses_overview_new(META_PLUGIN(self));
+    g_signal_connect(G_OBJECT(self->priv->overview), "destroy",
+            G_CALLBACK(_on_overview_destroy), self);
+    moses_overview_show(self->priv->overview, is_expose_all);
+}                                                                               
+                                                                                
+static void expose_window_handler(MetaDisplay *display, 
+                                  MetaScreen *screen,
+                                  MetaWindow *window,
+                                  ClutterKeyEvent *event,
+                                  MetaKeyBinding *binding,
+                                  gpointer user_data)
+{
+    ElsaWmPlugin* self = ELSA_WM_PLUGIN(user_data);
+    g_debug("%s: mask %x", __func__, event->modifier_state);
+
+    ClutterModifierType state = clutter_event_get_state((ClutterEvent*)event);
+    guint action = meta_display_get_keybinding_action(display,
+            clutter_event_get_key_code((ClutterEvent*)event), state);
+
+    do_expose_windows(self, action == self->priv->expose_all_windows_action);
+}
+
 static void
-start (MetaPlugin *plugin)
+start(MetaPlugin *plugin)
 {
     ElsaWmPlugin *self = ELSA_WM_PLUGIN(plugin);
     MetaScreen *screen = meta_plugin_get_screen(plugin);
+    MetaDisplay *display = meta_screen_get_display(screen);
 
     self->priv->background_group = meta_background_group_new();
     clutter_actor_insert_child_below(meta_get_window_group_for_screen(screen),
@@ -329,10 +386,20 @@ start (MetaPlugin *plugin)
                      G_CALLBACK(on_monitors_changed), plugin);
     on_monitors_changed(screen, plugin);
 
+    /*
+     * switcher and expose inherit from Sian Cao`s moses-wm ;-)
+     */
     meta_keybindings_set_custom_handler("switch-applications", 
         switch_applications_cb, self, NULL);
     meta_keybindings_set_custom_handler("switch-applications-backward",
         switch_applications_cb, self, NULL);
+
+    self->priv->expose_windows_action = meta_display_add_keybinding(display,
+        "expose-windows", self->priv->settings, 0, expose_window_handler, self, NULL);
+    self->priv->expose_all_windows_action = meta_display_add_keybinding(display,
+        "expose-all-windows", self->priv->settings, 0, expose_window_handler, self, NULL);
+    if (self->priv->expose_windows_action == META_KEY_BINDING_NONE)
+        g_warning("%s, line %d: register expose-windows failed", __func__, __LINE__);
 
     clutter_actor_show(meta_get_stage_for_screen(screen));
 }

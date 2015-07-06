@@ -62,9 +62,16 @@ PKG_CHECK_MODULES(PULSE, libpulse >= PULSE_REQUIRED
 AC_SUBST(PULSE_CFLAGS)
 AC_SUBST(PULSE_LIBS)
 
-dnl ================================================================            
-dnl  Language Support                                                           
-dnl ================================================================            
+dnl ================================================================
+dnl GSettings stuff
+dnl ================================================================
+
+GLIB_GSETTINGS
+
+dnl ================================================================
+dnl  Language Support
+dnl ================================================================
+
 GETTEXT_PACKAGE=elsa-shell 
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [Define the gettext package to be used])
 AC_SUBST(GETTEXT_PACKAGE)                                                       
@@ -85,6 +92,7 @@ AC_CONFIG_FILES([
  Makefile
  data/Makefile
  data/elsa-shell.desktop
+ data/org.anthonos.elsa-shell.wm.gschema.xml.in
  po/Makefile.in
  src/Makefile
  src/wm/Makefile

@@ -18,6 +18,9 @@ stamp-h1
 stamp-it
 POTFILES
 *.gmo
+*.valid
+*.xml
+*.xml.in
 src/elsa-shell
 data/elsa-shell.desktop
 

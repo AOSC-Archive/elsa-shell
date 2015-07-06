@@ -6,6 +6,8 @@ libelsa_wm_la_SOURCES =	elsa-wm-plugin.c	\
 						shell-app.c	\
 						shell-window-tracker.c	\
 						shell-app-system.c	\
+						overview.c	\
+						ov_header.c	\
 						$(NULL)
 libelsa_wm_la_CFLAGS = $(MUTTER_CFLAGS)	\
 					   $(SN_CFLAGS)	\

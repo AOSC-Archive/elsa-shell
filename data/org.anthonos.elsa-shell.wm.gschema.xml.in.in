@@ -1,0 +1,14 @@
+<schemalist>
+    <schema gettext-domain="@GETTEXT_PACKAGE@" id="org.anthonos.elsa-shell.wm" path="/org/anthonos/elsa-shell/wm/">
+    <key name="expose-windows" type="as">
+      <default><![CDATA[['<Super>e']]]></default>
+      <_summary>Shortcut to open the window overview</_summary>
+      <_description>Shortcut to open the window overview</_description>
+    </key>
+    <key name="expose-all-windows" type="as">
+      <default><![CDATA[['<Super>a']]]></default>
+      <_summary>Shortcut to open the window overview for all windows</_summary>
+      <_description>Shortcut to open the window overview for all windows</_description>
+    </key>
+  </schema>
+</schemalist>
