@@ -1,4 +1,4 @@
-/* Copyright (C) 2015 Leslie Zhai <xiang.zhai@i-soft.com.cn> */
+/* Copyright (C) 2015 AnthonOS Open Source Community */
 
 #include "config.h"
 #include "elsa-launcher.h"
@@ -44,6 +44,23 @@ static GtkWidget *menu_item_new_with_icon_text(GIcon *icon, const char *text)
     GtkWidget *menuitem = gtk_menu_item_new();
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     GtkWidget *image = gtk_image_new_from_gicon(icon, GTK_ICON_SIZE_LARGE_TOOLBAR);
+    GtkWidget *label = gtk_label_new(text);
+
+    gtk_image_set_pixel_size(GTK_IMAGE(image), 24);
+    gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 0);
+
+    gtk_container_add(GTK_CONTAINER(menuitem), box);
+
+    return menuitem;
+}
+
+static GtkWidget *menu_item_new_with_icon_name_text(const char *name, 
+                                                    const char *text) 
+{
+    GtkWidget *menuitem = gtk_menu_item_new();
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+    GtkWidget *image = gtk_image_new_from_icon_name(name, GTK_ICON_SIZE_LARGE_TOOLBAR);
     GtkWidget *label = gtk_label_new(text);
 
     gtk_image_set_pixel_size(GTK_IMAGE(image), 24);
@@ -134,6 +151,11 @@ done:
 
 static void logout(GtkMenuItem *menuitem, gpointer user_data)
 {
+    /* 
+     * TODO: please pay some attention to the src/main.c 
+     * there are wm process and gtk fork child process, I know it is not clean,
+     * but we need to kill parent pid and exit gtk g_main_loop
+     */
     kill(getppid(), SIGTERM);
     exit(0);
 }
@@ -154,7 +176,9 @@ static void menu_tree_changed(GMenuTree *tree, gpointer user_data)
         root = NULL;
     }
 
-    menuitem = gtk_menu_item_new_with_label(_("Logout"));
+    gtk_menu_shell_append(GTK_MENU_SHELL(popup), gtk_separator_menu_item_new());
+
+    menuitem = menu_item_new_with_icon_name_text("logout", _("Logout"));
     gtk_menu_shell_append(GTK_MENU_SHELL(popup), menuitem);
     g_object_connect(G_OBJECT(menuitem), 
         "signal::activate", G_CALLBACK(logout), NULL, 
