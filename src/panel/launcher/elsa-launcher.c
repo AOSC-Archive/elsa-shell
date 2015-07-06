@@ -75,7 +75,9 @@ static GtkWidget *menu_item_new_with_icon_name_text(const char *name,
 static void menu_item_activate(GtkMenuItem *menuitem, gpointer user_data) 
 {
     GAppInfo *app = (GAppInfo *)user_data;
-    g_app_info_launch(app, NULL, NULL, NULL);
+
+    if (app)
+        g_spawn_command_line_async(g_app_info_get_commandline(app), NULL);
 }
 
 /*
