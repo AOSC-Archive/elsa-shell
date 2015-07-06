@@ -22,6 +22,8 @@
 #include "shell-app.h"
 #include "shell-window-tracker.h"
 
+#define APP_ICON_PADDING 10
+
 static void meta_switcher_present_list(MetaSwitcher* self);
 static gboolean on_button_press(ClutterActor *actor, ClutterEvent *event, MetaSwitcher* self);
 static gboolean on_captured_event(ClutterActor *actor, ClutterEvent *event, MetaSwitcher* self);
@@ -491,14 +493,15 @@ static ClutterActor* load_icon_for_window(MetaSwitcher* self, MetaWindow* window
     MetaScreen *screen = meta_plugin_get_screen(priv->plugin);
     ShellWindowTracker* tracker = shell_window_tracker_get_default();
     ShellApp* app = shell_window_tracker_get_window_app(tracker, window);
-    gint screen_width, screen_height, app_icon_size = -1;
+    gint screen_width, screen_height, app_icon_size = APP_ICON_SIZE;
 
-    /* TODO: @sonald scaled app icon size at first */
+    /* TODO: @sonald scale app icon size at first */
     meta_screen_get_size(screen, &screen_width, &screen_height);
     if (priv->apps->len)
-        app_icon_size = screen_width / priv->apps->len;
+        app_icon_size = (screen_width - priv->apps->len * APP_ICON_PADDING ) / 
+                        priv->apps->len;
 
-    if (app_icon_size == -1 || app_icon_size > APP_ICON_SIZE)
+    if (app_icon_size > APP_ICON_SIZE)
         app_icon_size = APP_ICON_SIZE;
 
     if (app)
@@ -521,7 +524,15 @@ static void _add_app(MetaSwitcher* self, MetaWindow* app, gint* x, gint* y)
     win_priv->highlight = FALSE;
     g_hash_table_insert(priv->icons, app, actor);
 
-    gint w = APP_ACTOR_WIDTH, h = APP_ACTOR_HEIGHT;
+    gint w = APP_ACTOR_WIDTH, h = APP_ACTOR_HEIGHT, screen_width, screen_height;
+    /* TODO: @sonald scale app actor width */
+    MetaScreen *screen = meta_plugin_get_screen(priv->plugin);
+    meta_screen_get_size(screen, &screen_width, &screen_height);
+    if (priv->apps->len)
+        w = (screen_width - priv->apps->len * APP_ICON_PADDING) / priv->apps->len;
+
+    if (w > APP_ACTOR_WIDTH)
+        w = APP_ACTOR_WIDTH;
 
     // add children
     ClutterContent* canvas = clutter_canvas_new();
@@ -551,11 +562,12 @@ static void _add_app(MetaSwitcher* self, MetaWindow* app, gint* x, gint* y)
     g_object_set(label, "x-align", CLUTTER_ACTOR_ALIGN_CENTER, "y-align", CLUTTER_ACTOR_ALIGN_CENTER, NULL);
 
     gfloat pref_width = clutter_actor_get_width(label);
-    if (pref_width > w-10) {
-        pref_width = w-10;
+    if (pref_width > w - 10) {
+        pref_width = w - 10;
         clutter_actor_set_width(label, pref_width);
     }
-    clutter_actor_set_position(label, (APP_ACTOR_WIDTH-pref_width)/2, APP_ICON_SIZE+2);
+    /* TODO: @sonald adjust app title position */
+    clutter_actor_set_position(label, (w - pref_width) / 2, APP_ICON_SIZE + 2);
 
     g_debug("%s: size: %d, %d", __func__, w, h);
     clutter_actor_show(actor);
@@ -588,7 +600,6 @@ static void meta_switcher_present_list(MetaSwitcher* self)
         g_list_free(orig);
     }
 
-    // do not set width, so layout will give a reasonable width dynamically
     clutter_actor_set_height(priv->top, APP_ACTOR_HEIGHT + 20);
 
     gint x = 0, y = 0;
@@ -601,9 +612,15 @@ static void meta_switcher_present_list(MetaSwitcher* self)
 
     gint screen_width = 0, screen_height = 0;
     meta_screen_get_size(screen, &screen_width, &screen_height);
+    /* TODO: @sonald set top width when bigger than screen width */
+    if (clutter_actor_get_width(priv->top) > screen_width)
+        clutter_actor_set_width(priv->top, screen_width);
 
     gfloat w = clutter_actor_get_width(priv->top), h = clutter_actor_get_height(priv->top),
-           tx = (screen_width - w)/2, ty = (screen_height - h)/2;
+           tx = (screen_width - w) / 2, ty = (screen_height - h) / 2;
+#if DEBUG
+    g_message("%s, line %d, %f %f", __func__, __LINE__, w, tx);
+#endif
     clutter_actor_set_position(priv->top, tx, ty);
 
     ClutterContent* canvas = clutter_canvas_new();
