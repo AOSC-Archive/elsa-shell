@@ -5,6 +5,7 @@
 #include "../elsa-popup.h"
 
 #include <pulse/pulseaudio.h>
+#include <pulse/glib-mainloop.h>
 
 #define SINK_DEVICE_INDEX 0
 #define VOLUME_MUTE_ICON "audio-volume-muted-symbolic"
@@ -28,7 +29,7 @@ static GtkAdjustment *adjust = NULL;
  * PulseAudio is inherit from Python2.x binding 
  * https://github.com/linuxdeepin/pypulseaudio 
  */
-static pa_threaded_mainloop *pa_ml = NULL;
+static pa_glib_mainloop *pa_ml = NULL;
 static pa_context *pa_ctx = NULL;
 static pa_mainloop_api *pa_mlapi = NULL;
 static int sink_channel_num = 0;
@@ -302,13 +303,13 @@ static void adjust_value_changed(GtkAdjustment *_adjust, gpointer user_data)
 void elsa_sound_cleanup()
 {
     if (pa_ctx) {
+        pa_context_disconnect(pa_ctx);
         pa_context_unref(pa_ctx);
         pa_ctx = NULL;
     }
 
     if (pa_ml) {
-        pa_threaded_mainloop_stop(pa_ml);
-        pa_threaded_mainloop_free(pa_ml);
+        pa_glib_mainloop_free(pa_ml);
         pa_ml = NULL;
     }
 }
@@ -332,14 +333,14 @@ GtkWidget *elsa_sound_new()
     GtkWidget *eventbox = gtk_event_box_new();
     GtkWidget *popup = NULL;
 
-    pa_ml = pa_threaded_mainloop_new();
+    pa_ml = pa_glib_mainloop_new(g_main_context_default());
     if (!pa_ml) {
         g_warning("%s, line %d, fail to pa_threaded_mainloop_new\n", 
                   __func__, __LINE__);
         return eventbox;
     }
 
-    pa_mlapi = pa_threaded_mainloop_get_api(pa_ml);
+    pa_mlapi = pa_glib_mainloop_get_api(pa_ml);
     if (!pa_mlapi) {
         g_warning("%s, line %d, fail to pa_threaded_mainloop_get_api\n", 
                   __func__, __LINE__);
@@ -369,7 +370,6 @@ GtkWidget *elsa_sound_new()
         "signal::button-press-event", G_CALLBACK(elsa_sound_button_press), popup,
         NULL);
 
-    pa_threaded_mainloop_start(pa_ml);
     connect_to_pulse(NULL);
 
     return eventbox;
