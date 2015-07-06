@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <meta/main.h>
 #include <meta/util.h>
+#include <glib/gi18n-lib.h>
 #include <gtk/gtk.h>
 
 #include "elsa-wm-plugin.h"
@@ -31,8 +32,10 @@
 
 static ElsaPanel *elsa_panel = NULL;
 
-static gboolean print_version (const gchar* option_name,
-        const gchar* value, gpointer data, GError** error)
+static gboolean print_version(const gchar* option_name,
+                              const gchar* value, 
+                              gpointer data, 
+                              GError** error)
 {
     g_print("%s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
 
@@ -43,7 +46,7 @@ GOptionEntry es_options[] = {
     {
         "version", 0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK,
         print_version,
-        "Print version",
+        N_("Print version"),
         NULL
     },
     { NULL }
@@ -54,6 +57,10 @@ int main(int argc, char *argv[])
     GOptionContext *ctx = NULL;
     GError *error = NULL;
     pid_t child = -1;
+
+    bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
+    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+    textdomain(GETTEXT_PACKAGE);
 
     ctx = meta_get_option_context();
     g_option_context_add_main_entries(ctx, es_options, GETTEXT_PACKAGE);

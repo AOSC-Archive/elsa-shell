@@ -1,5 +1,6 @@
 config.*
 configure
+Makefile.in.in
 Makefile.in
 Makefile
 ar-lib
@@ -14,7 +15,9 @@ m4
 missing
 .deps
 stamp-h1
-po
+stamp-it
+POTFILES
+*.gmo
 src/elsa-shell
 data/elsa-shell.desktop
 

@@ -67,7 +67,7 @@ GETTEXT_PACKAGE=elsa-shell
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [Define the gettext package to be used])
 AC_SUBST(GETTEXT_PACKAGE)                                                       
 AM_GLIB_GNU_GETTEXT
-AM_GLIB_DEFINE_LOCALEDIR(ELSA_SHELL_LOCALEDIR)
+AM_GLIB_DEFINE_LOCALEDIR(LOCALEDIR)
 
 AC_ARG_ENABLE(debug,
               [AS_HELP_STRING([--enable-debug=@<:@no/yes@:>@],
