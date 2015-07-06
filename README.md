@@ -27,14 +27,6 @@ sudo make install
 ```
 
 
-## startx
-
-```
-vim ~/.xinitrc
-exec elsa-shell
-```
-
-
 ## Inherit
 
 * [mutter] (https://git.gnome.org/browse/mutter)
