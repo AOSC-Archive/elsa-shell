@@ -12,6 +12,7 @@
 static const char *autostart_filter[] = {
     "cairo-dock.desktop",
     "caribou-autostart.desktop",
+    "kmix_autostart.desktop",
     "krunner.desktop",
     "orbital-launcher.desktop",
     "org.kde.klipper.desktop",
