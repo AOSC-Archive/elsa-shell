@@ -55,6 +55,7 @@ fi
 
 conf_flags="--enable-maintainer-mode"
 
+((NOCONFIGURE)) && exit 0
 printbold Running ./configure $conf_flags "$@" ...
 ./configure $conf_flags "$@" \
 && echo Now type \`make\' to compile elsa-shell
