@@ -4,7 +4,7 @@ elsa-shell
 Elsa Shell is a Window Manager, Panel and Autostart.
 
 
-## Dependence
+## Dependencies
 
 * libmutter
 * libstartup-notification-1.0
@@ -17,9 +17,9 @@ Elsa Shell is a Window Manager, Panel and Autostart.
 * libpulse
 
 
-## Build
+## Building
 
-```
+```Bash
 ./autogen.sh --prefix=/usr --enable-debug
 make clean
 make
@@ -37,7 +37,7 @@ sudo make install
 * [pulseaudio python2.x binding] (https://github.com/linuxdeepin/pypulseaudio)
 
 
-## Patch
+## Patches
 
 * [Dragging a non-CSD window leaves the cursor in invalid state] (https://bugzilla.gnome.org/show_bug.cgi?id=750120)
 * [tasklist natural_width will be expanded by other windows] (https://bugzilla.gnome.org/show_bug.cgi?id=751423)
