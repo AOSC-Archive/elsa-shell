@@ -1,25 +1,11 @@
 #!/bin/sh
 
-ECHO_C=
-ECHO_N=
-case `echo -n x` in
--n*)
-  case `echo 'x\c'` in
-  *c*) ;;
-  *)   ECHO_C='\c';;
-  esac;;
-*)
-  ECHO_N='-n';;
-esac
-
 # some terminal codes ...
-boldface="`tput bold 2>/dev/null`"
-normal="`tput sgr0 2>/dev/null`"
-printbold() {
-    echo $ECHO_N "$boldface" $ECHO_C
-    echo "$@"
-    echo $ECHO_N "$normal" $ECHO_C
-}    
+boldface="$(tput bold 2>/dev/null)"
+normal="$(tput sgr0 2>/dev/null)"
+printbold()(
+	IFS=' '; printf "$boldface%s$normal" "$*"
+)
 
 printbold Running libtoolize...
 libtoolize --force --copy
@@ -30,9 +16,9 @@ intltoolize --force --copy --automake
 printbold Running aclocal...
 aclocal -I m4
 printbold Running autoconf...
-autoconf
+autoconf -Wall
 printbold Running autoheader...
-autoheader
+autoheader -Wall
 
 if [ -f COPYING ]; then
 	cp -pf COPYING COPYING.autogen_bak
@@ -42,7 +28,7 @@ if [ -f INSTALL ]; then
 fi
 
 printbold Running automake...
-automake --gnu --add-missing --force --copy
+automake -Wall --gnu --add-missing --force --copy
 
 if [ -f COPYING.autogen_bak ]; then
 	cmp COPYING COPYING.autogen_bak > /dev/null || cp -pf COPYING.autogen_bak COPYING
@@ -55,7 +41,7 @@ fi
 
 conf_flags="--enable-maintainer-mode"
 
-((NOCONFIGURE)) && exit 0
+[ "$((NOCONFIGURE))" -ne 0 ] || exit 0
 printbold Running ./configure $conf_flags "$@" ...
 ./configure $conf_flags "$@" \
 && echo Now type \`make\' to compile elsa-shell
